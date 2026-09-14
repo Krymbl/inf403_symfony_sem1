@@ -1,0 +1,13 @@
+{
+  "name": "danil/hw1",
+  "description": "Домашка задание 1",
+  "type": "project",
+  "require": {
+    "php": ">=8.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "Hw_01\\": "src/"
+    }
+  }
+}
