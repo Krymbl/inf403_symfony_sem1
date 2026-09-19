@@ -1,0 +1,19 @@
+<table class="{{ format }}">
+    <thead>
+    <tr>
+        <th>Пн</th><th>Вт</th><th>Ср</th><th>Чт</th><th>Пт</th><th>Сб</th><th>Вс</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for week in weeks %}
+        <tr>
+            {% for day in week %}
+                <td {% if day is not null and day.isWeekend %}class="weekend"{% endif %}>
+                    {{ day is not null ? day.day : '' }}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+

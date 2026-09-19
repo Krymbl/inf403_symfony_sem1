@@ -1,0 +1,7 @@
+<ul>
+    {% for week in weeks %}
+        {% for day in week|filter(d => d is not null) %}
+            <li>{{ day.title }}</li>
+        {% endfor %}
+    {% endfor %}
+</ul>

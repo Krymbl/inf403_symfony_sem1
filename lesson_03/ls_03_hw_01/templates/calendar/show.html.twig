@@ -1,0 +1,50 @@
+{% extends 'base.html.twig'  %}
+
+{% block title %}
+    {%- if format == 'list' -%}
+        Календарь - Список дней
+    {%- elseif format == 'table-weekends' -%}
+        Календарь - Таблица с выходными
+    {%- else -%}
+        Календарь - Таблица
+    {%- endif -%}
+{% endblock %}
+
+{% block body %}
+    <div class="main">
+        <h1>Календарь на {{ month_name }} {{ year }}</h1>
+
+        {% include 'calendar/extra/_' ~ format ~ '.html.twig' %}
+
+        <div class="nav">
+            <a href="{{path('calendar_index') ~ format ~ '/' ~ prev.year ~ '/' ~ prev.month }}">Предыдщуий месяц</a>
+            <a href="{{path('calendar_index') ~ format ~ '/' ~ next.year ~ '/' ~ next.month }}">Следующий месяц</a>
+
+            <a href="{{ path('calendar_index') }}">На главную</a>
+        </div>
+    </div>
+
+    <style>
+        .weekend {
+            background-color: red;
+        }
+        table.table,
+        table.table-weekends {
+            border-collapse: collapse;
+        }
+
+        table.table td,
+        table.table th {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: center;
+        }
+        table.table-weekends td,
+        table.table-weekends th {
+            border: none;
+            padding: 8px;
+            text-align: center;
+        }
+    </style>
+
+{% endblock %}
