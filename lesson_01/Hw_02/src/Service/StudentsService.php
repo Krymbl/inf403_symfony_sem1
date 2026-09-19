@@ -42,6 +42,10 @@ final readonly class StudentsService
 
         }
 
+        usort($students, function ($a, $b) {
+            return $a["avgGrade"] <=> $b["avgGrade"];
+        });
+
         return [
             "students" => $students,
             "bestStudents" => $bestStudents
@@ -74,7 +78,7 @@ final readonly class StudentsService
             $name = $studentData[0];
             $grades = $studentData[1];
 
-            if (!$name && !is_string($name) || preg_match('/\d/', $name)) {
+            if (!$name || !is_string($name) || preg_match('/\d/', $name)) {
                 throw new InvalidStudentsDataException(
                     "Имя студента невалидное, должны быть символы без цифр - 1 элемент в строке $lineNumber"
                 );

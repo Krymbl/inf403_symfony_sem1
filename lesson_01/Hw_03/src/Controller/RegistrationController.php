@@ -38,7 +38,7 @@ final readonly class RegistrationController extends AbstractController
     {
         if ($this->getUser() !== null) {
             $this->setFlash("error", "Вы уже вошли");
-            return $this->render("greeting/index");
+            $this->redirect("greeting/index");
         }
 
         $dto = new UserDto();

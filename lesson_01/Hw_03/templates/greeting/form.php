@@ -21,22 +21,21 @@ $error = $this->getFlash('error');
 
 <form method="post" action="/register">
     <input type="hidden" name="csrf_token" value="<?= $this->e($this->getCsrfToken()) ?>">
-
     <p>
         <label>Имя:<br>
             <input type="text" name="name" value="<?= $this->e($dto->name ?? '') ?>" required>
         </label>
         <?php foreach ($errors['name'] ?? [] as $message): ?>
-            <br><span><?= $this->e($message) ?></span>
+            <br><span style="color: red"><?= $this->e($message) ?></span>
         <?php endforeach; ?>
     </p>
 
     <p>
         <label>Возраст:<br>
-            <input type="text" name="age" value="<?= $this->e($dto->age ?? '') ?>" required>
+            <input type="number" name="age" value="<?= $this->e($dto->age ?? '') ?>" required min="1" max="120">
         </label>
         <?php foreach ($errors['age'] ?? [] as $message): ?>
-            <br><span><?= $this->e($message) ?></span>
+            <br><span style="color: red"><?= $this->e($message) ?></span>
         <?php endforeach; ?>
     </p>
 
@@ -45,7 +44,7 @@ $error = $this->getFlash('error');
             <input type="text" name="email" value="<?= $this->e($dto->email ?? '') ?>" required>
         </label>
         <?php foreach ($errors['email'] ?? [] as $message): ?>
-            <br><span><?= $this->e($message) ?></span>
+            <br><span style="color: red"><?= $this->e($message) ?></span>
         <?php endforeach; ?>
     </p>
 

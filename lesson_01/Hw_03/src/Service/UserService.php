@@ -25,7 +25,6 @@ final readonly class UserService
             throw new UserValidationException($errors);
         }
 
-
         $_SESSION["user"] = $dto;
     }
 

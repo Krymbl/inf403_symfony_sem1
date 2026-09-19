@@ -76,7 +76,7 @@ final readonly class UserRegisterValidator
         }
 
         $ageValue = (int)$age;
-        if ($age < self::AGE_MIN || $age > self::AGE_MAX) {
+        if ($ageValue < self::AGE_MIN || $ageValue > self::AGE_MAX) {
             $errors["age"][] = "Возраст целое число от ".self::AGE_MIN." до ".self::AGE_MAX;
         }
     }

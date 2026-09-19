@@ -14,11 +14,11 @@ $error = $this->getFlash('error');
 <body>
 
 <?php if ($success !== null): ?>
-    <p><strong><?= $this->e($success) ?></strong></p>
+    <p><strong style="color: green"><?= $this->e($success) ?></strong></p>
 <?php endif; ?>
 
 <?php if ($error !== null): ?>
-    <p><strong><?= $this->e($error) ?></strong></p>
+    <p><strong style="color: red"><?= $this->e($error) ?></strong></p>
 <?php endif; ?>
 
 <?php if ($user !== null): ?>

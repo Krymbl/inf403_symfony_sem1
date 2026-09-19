@@ -27,7 +27,7 @@ abstract readonly class AbstractController
             throw new ServerException("Недопустимый путь к шаблону: $view");
         }
 
-        extract($data, EXTR_SKIP);
+        extract($data);
 
         ob_start();
         require $realPath;
