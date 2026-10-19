@@ -6,10 +6,9 @@ namespace App\Controller;
 
 use App\Dto\GradeDto;
 use App\Entity\Grade;
-use App\Entity\Student;
 use App\Form\GradeType;
 use App\Service\GradeService;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use App\Service\StudentService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,27 +21,28 @@ final class GradeController extends AbstractController
 {
     public function __construct(
         private readonly GradeService $gradeService,
+        private readonly StudentService $studentService,
     ) {
     }
 
     #[Route(path: '/{studentId}/create', name: 'create', requirements: ['studentId' => '\d+'], methods: ['POST'])]
-    public function create(
-        #[MapEntity(id: 'studentId')] Student $student,
-        Request $request,
-    ): JsonResponse {
-        return $this->save($request, new GradeDto(), $student);
+    public function create(int $studentId, Request $request): JsonResponse
+    {
+        $student = $this->studentService->get($studentId);
+        return $this->save($request, new GradeDto($student));
     }
 
     #[Route(path: '/{id}/edit', name: 'edit', requirements: ['id' => '\d+'], methods: ['POST'])]
-    public function edit(Grade $grade, Request $request): JsonResponse
+    public function edit(int $id, Request $request): JsonResponse
     {
-        return $this->save($request, GradeDto::fromGrade($grade), $grade->getStudent(), $grade);
+        $grade = $this->gradeService->get($id);
+        return $this->save($request, GradeDto::fromGrade($grade), $grade);
     }
 
     #[Route(path: '/{id}/delete', name: 'delete', requirements: ['id' => '\d+'], methods: ['POST'])]
-    public function delete(Grade $grade, Request $request): JsonResponse
+    public function delete(int $id, Request $request): JsonResponse
     {
-        $id = $grade->getId();
+        $grade = $this->gradeService->get($id);
         $studentId = $grade->getStudent()->getId();
 
         if (!$this->isCsrfTokenValid('delete-grade-'.$id, $request->request->getString('_token'))) {
@@ -66,7 +66,7 @@ final class GradeController extends AbstractController
         );
     }
 
-    private function save(Request $request, GradeDto $dto, Student $student, ?Grade $grade = null): JsonResponse
+    private function save(Request $request, GradeDto $dto, ?Grade $grade = null): JsonResponse
     {
         $form = $this->createForm(GradeType::class, $dto);
         $form->handleRequest($request);

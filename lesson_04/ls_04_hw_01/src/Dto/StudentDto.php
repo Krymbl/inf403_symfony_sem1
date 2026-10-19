@@ -12,7 +12,7 @@ final class StudentDto
     #[Assert\NotBlank(message: 'Фио обязательно')]
     #[Assert\Length(
         min: 3,
-        max: 255,
+        max: 100,
         minMessage: 'ФИО должно содержать минимум {{ limit }} букв',
         maxMessage: 'ФИО должно содержать не больше {{ limit }} букв',
     )]

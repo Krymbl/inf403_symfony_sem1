@@ -36,6 +36,15 @@ final class StudentRepository extends ServiceEntityRepository
         }
     }
 
+    public function findAllWithGrades(): array
+    {
+        return $this->createQueryBuilder('s')
+            ->addSelect('g')
+            ->leftJoin('s.grades', 'g')
+            ->getQuery()
+            ->getArrayResult();
+    }
+
     public function flush(): void
     {
         $this->getEntityManager()->flush();

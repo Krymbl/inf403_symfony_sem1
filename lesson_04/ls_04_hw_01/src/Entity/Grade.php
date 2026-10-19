@@ -9,7 +9,7 @@ use App\Repository\GradeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GradeRepository::class)]
-class Grade
+final class Grade
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: 'integer')]
     private ?int $id = null;

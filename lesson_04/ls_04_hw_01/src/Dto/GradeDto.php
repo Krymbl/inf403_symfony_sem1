@@ -12,18 +12,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class GradeDto
 {
-    #[Assert\NotBlank(message: 'Студент обязателен')]
-    public ?Student $student = null;
+    public function __construct(
+        public readonly Student $student,
+        #[Assert\NotBlank(message: 'Значение обязательно')]
+        public ?GradeValue $value = null,
+    ) {
+    }
 
-    #[Assert\NotBlank(message: 'Значение обязательно')]
-    public ?GradeValue $value = null;
-
-    public static function fromGrade(Grade $grade): GradeDto
+    public static function fromGrade(Grade $grade): self
     {
-        $self = new self();
-        $self->student = $grade->getStudent();
-        $self->value = $grade->getValue();
-
-        return $self;
+        return new self($grade->getStudent(), $grade->getValue());
     }
 }
