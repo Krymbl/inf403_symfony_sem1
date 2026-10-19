@@ -1,0 +1,118 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Оценки студентов{% endblock %}
+
+{% block body %}
+    <style>
+        table { border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; }
+        .grade { margin-right: 8px; white-space: nowrap; }
+    </style>
+
+    <h1>Оценки студентов</h1>
+
+    <p><a href="{{ path('student_create_form') }}">Добавить студента</a></p>
+
+    <table id="grades"
+           data-form-token="{{ csrf_token('grade') }}"
+           data-delete-token="{{ csrf_token('delete-grade') }}">
+        <thead>
+            <tr>
+                <th>Студент</th>
+                <th>Оценки</th>
+                <th>Поставить</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for student in students %}
+            <tr>
+                <td>
+                    <a href="{{ path('student_update_form', {id: student.id}) }}">{{ student.fullName }}</a>
+                </td>
+
+                <td>
+                    {% for grade in student.grades %}
+                        <span class="grade">
+                            <select class="grade-value" data-url="{{ path('grade_edit', {id: grade.id}) }}">
+                                {% for value in 1..5 %}
+                                    <option value="{{ value }}" {{ value == grade.value.value ? 'selected' }}>{{ value }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" class="grade-delete"
+                                    data-url="{{ path('grade_delete', {id: grade.id}) }}">&times;</button>
+                        </span>
+                    {% endfor %}
+                </td>
+
+                <td>
+                    <select class="grade-new">
+                        {% for value in 1..5 %}
+                            <option value="{{ value }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" class="grade-add"
+                            data-url="{{ path('grade_create', {studentId: student.id}) }}">+</button>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="3">Студентов пока нет</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        const table = document.getElementById('grades');
+
+        async function post(url, fields) {
+            const body = new FormData();
+            for (const [name, value] of Object.entries(fields)) {
+                body.append(name, value);
+            }
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {'Accept': 'application/json'},
+                body: body,
+            });
+
+            if (!response.ok) {
+                const json = await response.json().catch(() => ({}));
+                alert(json.error || Object.values(json.errors || {}).flat().join('\n') || 'Ошибка');
+                return false;
+            }
+
+            return true;
+        }
+
+        table.addEventListener('change', async (event) => {
+            if (event.target.matches('.grade-value')) {
+                await post(event.target.dataset.url, {
+                    'grade[value]': event.target.value,
+                    'grade[_token]': table.dataset.formToken,
+                });
+            }
+        });
+
+        table.addEventListener('click', async (event) => {
+            if (event.target.matches('.grade-delete')) {
+                if (await post(event.target.dataset.url, {'_token': table.dataset.deleteToken})) {
+                    event.target.closest('.grade').remove();
+                }
+            }
+
+            if (event.target.matches('.grade-add')) {
+                const value = event.target.closest('tr').querySelector('.grade-new').value;
+
+                if (await post(event.target.dataset.url, {
+                    'grade[value]': value,
+                    'grade[_token]': table.dataset.formToken,
+                })) {
+                    location.reload();
+                }
+            }
+        });
+    </script>
+{% endblock %}
