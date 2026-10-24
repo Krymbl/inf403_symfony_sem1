@@ -42,7 +42,7 @@ final class StudentRepository extends ServiceEntityRepository
             ->addSelect('g')
             ->leftJoin('s.grades', 'g')
             ->getQuery()
-            ->getArrayResult();
+            ->getResult();
     }
 
     public function flush(): void

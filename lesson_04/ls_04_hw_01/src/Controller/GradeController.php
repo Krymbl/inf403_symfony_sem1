@@ -43,9 +43,10 @@ final class GradeController extends AbstractController
     public function delete(int $id, Request $request): JsonResponse
     {
         $grade = $this->gradeService->get($id);
-        $studentId = $grade->getStudent()->getId();
+        $student = $grade->getStudent();
+        $value = $grade->getValue();
 
-        if (!$this->isCsrfTokenValid('delete-grade-'.$id, $request->request->getString('_token'))) {
+        if (!$this->isCsrfTokenValid('delete-grade', $request->request->getString('_token'))) {
             return $this->json(
                 [
                     'success' => false,
@@ -60,8 +61,10 @@ final class GradeController extends AbstractController
         return $this->json(
             [
                 'success' => true,
+                'message' => "Оценка $value->value у {$student->getFullName()} удалена",
                 'id' => $id,
-                'studentId' => $studentId,
+                'value' => $value->value,
+                'studentId' => $student->getId(),
             ]
         );
     }
@@ -89,9 +92,10 @@ final class GradeController extends AbstractController
             ? $this->gradeService->update($grade, $dto)
             : $this->gradeService->create($dto);
 
+
         return $this->json([
             'success' => true,
-            'message' => 'Оценка '.$grade->getValue()->value.' проставлена',
+            'message' => "Оценка {$grade->getValue()->value} у {$grade->getStudent()->getFullName()} проставлена",
             'id' => $grade->getId(),
             'value' => $grade->getValue()->value,
             'studentId' => $grade->getStudent()->getId(),

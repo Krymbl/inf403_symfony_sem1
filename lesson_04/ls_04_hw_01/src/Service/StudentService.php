@@ -6,8 +6,8 @@ namespace App\Service;
 
 use App\Dto\StudentDto;
 use App\Entity\Student;
+use App\Exception\Student\StudentNotFoundException;
 use App\Repository\StudentRepository;
-use Doctrine\ORM\EntityNotFoundException;
 
 final readonly class StudentService
 {
@@ -23,34 +23,24 @@ final readonly class StudentService
         return $student;
     }
 
-    /**
-     * @throws EntityNotFoundException
-     */
     public function update(Student $student, StudentDto $dto): void
     {
         $student->setFullName($dto->fullName);
         $this->studentRepository->save($student);
     }
 
-    /**
-     * @throws EntityNotFoundException
-     */
     public function delete(Student $student): void
     {
         $this->studentRepository->remove($student);
     }
 
     /**
-     * @throws EntityNotFoundException
+     * @throws StudentNotFoundException
      */
     public function get(int $id): Student
     {
-        $student = $this->studentRepository->find($id);
-        if ($student === null) {
-            throw new EntityNotFoundException('Студент не найден');
-        }
-
-        return $student;
+        return $this->studentRepository->find($id)
+            ?? throw new StudentNotFoundException();
     }
 
     public function getAllWithGrades(): array

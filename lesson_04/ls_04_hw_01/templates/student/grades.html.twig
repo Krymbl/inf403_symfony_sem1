@@ -1,17 +1,30 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Оценки студентов{% endblock %}
+{% block title %}Табель оценок{% endblock %}
 
-{% block body %}
+{% block css %}
     <style>
+        body { font-family: sans-serif; }
         table { border-collapse: collapse; }
         th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; }
         .grade { margin-right: 8px; white-space: nowrap; }
+        .flash { padding: 6px 10px; background: #dfd; }
+        .flash.error { background: #fdd; }
     </style>
+{% endblock %}
 
-    <h1>Оценки студентов</h1>
+{% block body %}
+    <h1>Табель оценок</h1>
 
-    <p><a href="{{ path('student_create_form') }}">Добавить студента</a></p>
+    {% for label, flashes in app.flashes %}
+        {% for flash in flashes %}
+            <p class="flash {{ label == 'success' ? '' : 'error' }}">{{ flash }}</p>
+        {% endfor %}
+    {% endfor %}
+
+    <p id="message" class="flash" hidden></p>
+
+    <p><a href="{{ path('student_create') }}">Добавить студента</a></p>
 
     <table id="grades"
            data-form-token="{{ csrf_token('grade') }}"
@@ -27,10 +40,10 @@
         {% for student in students %}
             <tr>
                 <td>
-                    <a href="{{ path('student_update_form', {id: student.id}) }}">{{ student.fullName }}</a>
+                    <a href="{{ path('student_edit', {id: student.id}) }}">{{ student.fullName }}</a>
                 </td>
 
-                <td>
+                <td class="grade-list">
                     {% for grade in student.grades %}
                         <span class="grade">
                             <select class="grade-value" data-url="{{ path('grade_edit', {id: grade.id}) }}">
@@ -41,6 +54,8 @@
                             <button type="button" class="grade-delete"
                                     data-url="{{ path('grade_delete', {id: grade.id}) }}">&times;</button>
                         </span>
+                    {% else %}
+                        <span class="grade-empty">&mdash;</span>
                     {% endfor %}
                 </td>
 
@@ -59,58 +74,116 @@
         {% endfor %}
         </tbody>
     </table>
+
+    <template id="grade-template"
+              data-edit-url="{{ path('grade_edit', {id: 0}) }}"
+              data-delete-url="{{ path('grade_delete', {id: 0}) }}">
+        <span class="grade">
+            <select class="grade-value">
+                {% for value in 1..5 %}
+                    <option value="{{ value }}">{{ value }}</option>
+                {% endfor %}
+            </select>
+            <button type="button" class="grade-delete">&times;</button>
+        </span>
+    </template>
 {% endblock %}
 
-{% block javascripts %}
-    {{ parent() }}
+{% block javascript %}
     <script>
         const table = document.getElementById('grades');
+        const template = document.getElementById('grade-template');
+        const message = document.getElementById('message');
+        const token = table.dataset.formToken;
+        const deleteToken = table.dataset.deleteToken;
+
+        function show(text, isError = false) {
+            message.textContent = text;
+            message.className = isError ? 'flash error' : 'flash';
+            message.hidden = false;
+        }
 
         async function post(url, fields) {
-            const body = new FormData();
-            for (const [name, value] of Object.entries(fields)) {
-                body.append(name, value);
-            }
-
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {'Accept': 'application/json'},
-                body: body,
+                body: new URLSearchParams(fields),
             });
 
+            const json = await response.json().catch(() => ({}));
+
             if (!response.ok) {
-                const json = await response.json().catch(() => ({}));
-                alert(json.error || Object.values(json.errors || {}).flat().join('\n') || 'Ошибка');
-                return false;
+                show(
+                    json.error
+                        || Object.values(json.errors || {}).flat().join('\n')
+                        || 'Ошибка ' + response.status,
+                    true,
+                );
+
+                return null;
             }
 
-            return true;
+            return json;
+        }
+
+        function buildGrade(json) {
+            const node = template.content.firstElementChild.cloneNode(true);
+
+            const select = node.querySelector('.grade-value');
+            select.dataset.url = template.dataset.editUrl.replace('/0/', '/' + json.id + '/');
+            select.value = String(json.value);
+
+            const button = node.querySelector('.grade-delete');
+            button.dataset.url = template.dataset.deleteUrl.replace('/0/', '/' + json.id + '/');
+
+            return node;
         }
 
         table.addEventListener('change', async (event) => {
             if (event.target.matches('.grade-value')) {
-                await post(event.target.dataset.url, {
+                const json = await post(event.target.dataset.url, {
                     'grade[value]': event.target.value,
-                    'grade[_token]': table.dataset.formToken,
+                    'grade[_token]': token,
                 });
+
+                if (json) {
+                    show(json.message);
+                }
             }
         });
 
         table.addEventListener('click', async (event) => {
-            if (event.target.matches('.grade-delete')) {
-                if (await post(event.target.dataset.url, {'_token': table.dataset.deleteToken})) {
-                    event.target.closest('.grade').remove();
+            const target = event.target;
+
+            if (target.matches('.grade-delete')) {
+                const cell = target.closest('.grade-list');
+                const json = await post(target.dataset.url, {_token: deleteToken});
+
+                if (json) {
+                    target.closest('.grade').remove();
+
+                    if (!cell.querySelector('.grade')) {
+                        cell.innerHTML = '<span class="grade-empty">&mdash;</span>';
+                    }
+
+                    show(json.message);
                 }
             }
 
-            if (event.target.matches('.grade-add')) {
-                const value = event.target.closest('tr').querySelector('.grade-new').value;
+            if (target.matches('.grade-add')) {
+                const row = target.closest('tr');
 
-                if (await post(event.target.dataset.url, {
-                    'grade[value]': value,
-                    'grade[_token]': table.dataset.formToken,
-                })) {
-                    location.reload();
+                const json = await post(target.dataset.url, {
+                    'grade[value]': row.querySelector('.grade-new').value,
+                    'grade[_token]': token,
+                });
+
+                if (json) {
+                    const cell = row.querySelector('.grade-list');
+                    cell.querySelector('.grade-empty')?.remove();
+                    cell.append(buildGrade(json));
+
+                    show(json.message);
                 }
             }
         });

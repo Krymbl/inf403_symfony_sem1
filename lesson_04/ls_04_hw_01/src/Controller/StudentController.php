@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Dto\StudentDto;
-use App\Entity\Student;
 use App\Form\StudentType;
 use App\Service\StudentService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -50,9 +49,10 @@ final class StudentController extends AbstractController
         }
 
         return $this->render(
-            'student/create.html.twig',
+            'student/save.html.twig',
             [
                 'form' => $form,
+                'title' => 'Новый студент',
             ]
         );
     }
@@ -72,14 +72,20 @@ final class StudentController extends AbstractController
             return $this->redirectToRoute('student_grades');
         }
 
-        return $this->render('student/edit.html.twig', ['form' => $form]);
+        return $this->render(
+            'student/save.html.twig',
+            [
+                'form' => $form,
+                'title' => 'Редактирование студента',
+            ]
+        );
     }
 
     #[Route(path: '/{id}/delete', name: 'delete', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function delete(int $id, Request $request): Response
     {
         $student = $this->studentService->get($id);
-        if (!$this->isCsrfTokenValid('delete-student-'.$student->getId(), $request->request->getString('_token'))) {
+        if (!$this->isCsrfTokenValid('delete-student', $request->request->getString('_token'))) {
             throw $this->createAccessDeniedException();
         }
 

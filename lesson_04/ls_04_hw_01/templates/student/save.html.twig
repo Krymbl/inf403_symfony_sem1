@@ -1,14 +1,15 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Редактирование студента{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block body %}
-    <h1>Редактирование студента</h1>
+    <h1>{{ title }}</h1>
 
     {{ form_start(form) }}
-        {{ form_row(form.fullName) }}
+        {{ form_widget(form) }}
         <button type="submit">Сохранить</button>
     {{ form_end(form) }}
 
     <a href="{{ path('student_grades') }}">Назад</a>
+
 {% endblock %}

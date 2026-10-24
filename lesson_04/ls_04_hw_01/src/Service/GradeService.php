@@ -6,8 +6,8 @@ namespace App\Service;
 
 use App\Dto\GradeDto;
 use App\Entity\Grade;
+use App\Exception\Grade\GradeNotFoundException;
 use App\Repository\GradeRepository;
-use Doctrine\ORM\EntityNotFoundException;
 
 final readonly class GradeService
 {
@@ -23,9 +23,6 @@ final readonly class GradeService
         return $grade;
     }
 
-    /**
-     * @throws EntityNotFoundException
-     */
     public function update(Grade $grade, GradeDto $dto): Grade
     {
         $grade->setValue($dto->value);
@@ -33,24 +30,17 @@ final readonly class GradeService
         return $grade;
     }
 
-    /**
-     * @throws EntityNotFoundException
-     */
     public function delete(Grade $grade): void
     {
         $this->gradeRepository->remove($grade);
     }
 
     /**
-     * @throws EntityNotFoundException
+     * @throws GradeNotFoundException
      */
     public function get(int $id): Grade
     {
-        $grade = $this->gradeRepository->find($id);
-        if ($grade === null) {
-            throw new EntityNotFoundException('Оценка не найден');
-        }
-
-        return $grade;
+        return $this->gradeRepository->find($id)
+            ?? throw new GradeNotFoundException();
     }
 }
