@@ -20,6 +20,7 @@ final class GradeType extends AbstractType
                 'label' => 'Оценка',
                 'class' => GradeValue::class,
                 'choice_label' => fn(GradeValue $gradeValue) => (string)$gradeValue->value,
+                'invalid_message' => 'Оценка не проставилась, выберете оценку от 1 до 5',
                 'attr' => [
                     'class' => 'value-input',
                 ],

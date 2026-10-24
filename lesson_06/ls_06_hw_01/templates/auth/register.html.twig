@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+{% block title %}Регистрация{% endblock %}
+{% block body %}
+
+    {{ form_start(form) }}
+        {{ form_errors(form) }}
+
+        {{ form_row(form.email) }}
+
+        {{ form_row(form.name) }}
+
+        {{ form_errors(form.password) }}
+        {{ form_row(form.password.first) }}
+        {{ form_row(form.password.second) }}
+
+        <button type="submit">Зарегистрироваться</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('login')}}">Войти</a>
+
+{% endblock %}

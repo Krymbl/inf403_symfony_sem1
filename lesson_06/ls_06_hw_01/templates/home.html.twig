@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+
+    {% for message in app.flashes('success') %}
+        <div style="background-color: green">{{ message }}</div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div style="background-color: red">{{ message }}</div>
+    {% endfor %}
+
+    <div>
+        <div>
+            <h2>Ваша инфа</h2>
+            <p>Имя: {{ name }}</p>
+            <p>Почта: {{ email }}</p>
+        </div>
+        <nav>
+            <a href="/logout">Выйти</a>
+        </nav>
+    </div>
+{% endblock %}

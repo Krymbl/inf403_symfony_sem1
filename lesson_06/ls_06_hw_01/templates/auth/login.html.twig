@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+{% block title %}Вход{% endblock %}
+{% block body %}
+
+    {% if error %}
+        <div style="background-color: red">
+            Неверная почта или пароль
+        </div>
+    {% endif %}
+
+    <form action="{{ path('login') }}" method="post">
+        <label>
+            Почта
+            <input type="email" name="_username" value="{{ last_username }}" required>
+        </label>
+
+        <label>
+            Пароль
+            <input type="password" name="_password" required>
+        </label>
+
+        <button type="submit">Войти</button>
+
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+    </form>
+
+    <a href="{{ path('register')}}">Зарегаться</a>
+
+{% endblock %}
