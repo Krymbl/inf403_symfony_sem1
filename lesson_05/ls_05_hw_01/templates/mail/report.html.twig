@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Отчёт о генерации писем</title>
+</head>
+<body>
+<h1>Письма сгенерированы</h1>
+
+<p>Количество писем: {{ files|length }}</p>
+<ul>
+    {% for file in files %}
+        <li>{{ file }}</li>
+    {% endfor %}
+</ul>
+
+<a href="{{ path('mail_generate') }}">Вернуться к форме</a>
+</body>
+</html>
